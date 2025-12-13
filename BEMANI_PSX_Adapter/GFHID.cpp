@@ -62,11 +62,11 @@ static const uint8_t PROGMEM _hidReportGF[] = {
   0xc0                           /* END_COLLECTION */
 };
 
-static const char* const PROGMEM GF_String_Manufacturer = "Konami Computer Entertainment Japan, Inc.";
+static const char* const PROGMEM GF_String_Manufacturer = "Konami Digital Entertainment Co., Ltd.";
 static const uint16_t PROGMEM GF_String_Product[] = {
-  0x30ae, 0x30bf, 0x30fc, 0x30d5, 0x30ea, 0x30fc, 0x30af, 0x30b9,
-  0x5c02, 0x7528, 0x30b3, 0x30f3, 0x30c8, 0x30ed, 0x30fc, 0x30e9,
-  0x0000,
+  0x30ae, 0x30bf, 0x30fc, 0x30d5, 0x30ea, 0x30fc, 0x30af, 0x30b9, 
+  0x0020, 0x30a2, 0x30fc, 0x30b1, 0x30fc, 0x30c9, 0x30b9, 0x30bf, 
+  0x30a4, 0x30eb, 0x30b3, 0x30f3, 0x30c8, 0x30ed, 0x30fc, 0x30e9
 };
 static const char* const PROGMEM GF_String_Serial = "GFHID";
 static constexpr uint8_t GF_STRING_PRODUCT_LEN = (sizeof(GF_String_Product) / sizeof(uint16_t)) - 1;
