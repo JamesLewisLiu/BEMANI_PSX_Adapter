@@ -1,6 +1,5 @@
 #include "GFHID.h"
 #include <string.h>
-#include <avr/pgmspace.h>
 
 /* HID string and device descriptor */
 const DeviceDescriptor PROGMEM GF_USB_DeviceDescriptor =
@@ -18,21 +17,6 @@ static bool USB_SendStringDescriptor(const char* string_P, uint8_t string_len, u
     bool r = SendControl(pgm ? pgm_read_byte(&string_P[i]) : string_P[i]);
     r &= SendControl(0);
     if (!r) {
-      return false;
-    }
-  }
-  return true;
-}
-
-static bool USB_SendStringDescriptorUTF16(const uint16_t* string_P, uint8_t string_len) {
-  SendControl(2 + string_len * 2);
-  SendControl(3);
-  for (uint8_t i = 0; i < string_len; i++) {
-    uint16_t w = pgm_read_word(&string_P[i]);
-    if (!SendControl(w & 0xFF)) {
-      return false;
-    }
-    if (!SendControl((w >> 8) & 0xFF)) {
       return false;
     }
   }
@@ -63,13 +47,8 @@ static const uint8_t PROGMEM _hidReportGF[] = {
 };
 
 static const char* const PROGMEM GF_String_Manufacturer = "Konami Computer Entertainment Japan, Inc.";
-static const uint16_t PROGMEM GF_String_Product[] = {
-  0x30ae, 0x30bf, 0x30fc, 0x30d5, 0x30ea, 0x30fc, 0x30af, 0x30b9,
-  0x5c02, 0x7528, 0x30b3, 0x30f3, 0x30c8, 0x30ed, 0x30fc, 0x30e9,
-  0x0000,
-};
+static const char* const PROGMEM GF_String_Product = "GUITAR FREAKS Dedicated Controller";
 static const char* const PROGMEM GF_String_Serial = "GFHID";
-static constexpr uint8_t GF_STRING_PRODUCT_LEN = (sizeof(GF_String_Product) / sizeof(uint16_t)) - 1;
 
 GFHID_::GFHID_() : PluggableUSBModule(1, 1, epType) {
   epType[0] = EP_TYPE_INTERRUPT_IN;
@@ -91,7 +70,7 @@ int GFHID_::getDescriptor(USBSetup& setup) {
   }
   if (setup.wValueH == USB_STRING_DESCRIPTOR_TYPE) {
     if (setup.wValueL == IPRODUCT) {
-      return USB_SendStringDescriptorUTF16(GF_String_Product, GF_STRING_PRODUCT_LEN);
+      return USB_SendStringDescriptor(GF_String_Product, strlen(GF_String_Product), 0);
     }
     else if (setup.wValueL == IMANUFACTURER) {
       return USB_SendStringDescriptor(GF_String_Manufacturer, strlen(GF_String_Manufacturer), 0);
