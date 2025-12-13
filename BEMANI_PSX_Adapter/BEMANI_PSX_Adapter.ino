@@ -1,5 +1,6 @@
 #include "IIDXHID.h"
 #include "POPNHID.h"
+#include "GFHID.h"
 #include "PsxControllerHwSpi.h"
 #include <inttypes.h>
 
@@ -13,6 +14,7 @@
 
 IIDXHID_ IIDXHID;
 POPNHID_ POPNHID;
+GFHID_ GFHID;
 
 const byte PIN_PS2_ATT = A2;
 PsxControllerHwSpi<PIN_PS2_ATT> psx;
@@ -48,6 +50,7 @@ void update_encoder(tt_direction_t dir, uint8_t quantity) {
 }
 
 bool g_popn = false;
+bool g_gf = false;
 
 void setup() {
   haveController = psx.begin();
@@ -58,6 +61,11 @@ void setup() {
   {
     g_popn = true;
     PluggableUSB().plug(&POPNHID);
+  }
+  else if (psxButtons & PSB_PAD_LEFT)
+  {
+    g_gf = true;
+    PluggableUSB().plug(&GFHID);
   } else {
     PluggableUSB().plug(&IIDXHID);
   }
@@ -80,6 +88,20 @@ if (!haveController) {
   }
 
   uint32_t buttonsState = 0;
+
+  if (g_gf)
+  {
+    buttonsState |= !!(psxButtons & PSB_R2) << 0;
+    buttonsState |= !!(psxButtons & PSB_CIRCLE) << 1;
+    buttonsState |= !!(psxButtons & PSB_TRIANGLE) << 2;
+    buttonsState |= !!(psxButtons & PSB_PAD_UP) << 3;
+    buttonsState |= !!(psxButtons & PSB_L2) << 4;
+    buttonsState |= !!(psxButtons & PSB_SELECT) << 5;
+    buttonsState |= !!(psxButtons & PSB_START) << 6;
+
+    *button_state = buttonsState;
+    return;
+  }
 
   if (g_popn)
   {
@@ -246,6 +268,19 @@ static int curr_tt_pos;
       uint32_t button_state = 0;
       buttonRead(&button_state, NULL);
       POPNHID.sendState(button_state);
+      lastReport = currTime;
+    }
+    return;
+
+  }
+
+  if (g_gf)
+  {
+    if ( (currTime - lastReport) >= REPORT_DELAY )
+    {
+      uint32_t button_state = 0;
+      buttonRead(&button_state, NULL);
+      GFHID.sendState(button_state);
       lastReport = currTime;
     }
     return;
