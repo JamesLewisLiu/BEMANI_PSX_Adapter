@@ -62,7 +62,7 @@ void setup() {
     g_popn = true;
     PluggableUSB().plug(&POPNHID);
   }
-  else if (psxButtons & PSB_PAD_LEFT)
+  else if ((psxButtons & PSB_PAD_LEFT) && (psxButtons & PSB_PAD_RIGHT))
   {
     g_gf = true;
     PluggableUSB().plug(&GFHID);
